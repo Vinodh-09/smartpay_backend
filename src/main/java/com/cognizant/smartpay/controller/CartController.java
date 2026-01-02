@@ -13,7 +13,10 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api/cart")
+<<<<<<< HEAD
 @CrossOrigin(origins = "http://localhost:3000")
+=======
+>>>>>>> cd0856f68e2a012ba936bb2fdc3fbd15eb442982
 @RequiredArgsConstructor
 public class CartController {
 
