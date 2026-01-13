@@ -81,15 +81,15 @@ public class BiometricAuthController {
             User user = biometricService.registerNewUser(request);
 
             com.cognizant.smartpay.dto.RegistrationResponse response = com.cognizant.smartpay.dto.RegistrationResponse.builder()
-                    .userId(user.getUserId())
-                    .name(user.getName())
-                    .email(user.getEmail())
-                    .phone(user.getPhone())
-                    .walletBalance(user.getWalletBalance())
-                    .biometricEnabled(user.getBiometricEnabled())
-                    .status(user.getStatus())
-                    .message("User registered successfully")
-                    .build();
+                .userId(user.getUserId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .walletBalance(user.getWalletBalance())
+                .biometricEnabled(user.getBiometricEnabled())
+                .status(user.getStatus())
+                .message("User registered successfully")
+                .build();
 
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
