@@ -4,7 +4,7 @@ import com.caen.RFIDLibrary.*;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.stereotype.Service;
-import com.caen.*;
+
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,19 +25,21 @@ public class CaenRfidService {
     private void connectReader() {
         try {
             reader = new CAENRFIDReader();
-            reader.Connect(CAENRFIDPort.CAENRFID_USB, "COM5");
-
+            reader.Connect(CAENRFIDPort.CAENRFID_USB, "COM4");
             // 🔑 FIX: wait until reader is READY
             Thread.sleep(1500);
 
             source = reader.GetSources()[0];
-
+            CAENRFIDReaderInfo info = reader.GetReaderInfo();
+            System.out.println("Connected to CAEN RFID Reader: " + info.GetModel());
+            System.out.println(reader.GetFirmwareRelease());
 
             // Enable antenna
             //source.SetEnabledAntennas(new short[]{1});
             //source.SetPower(30);
-            reader.SetPower(30);
             source.SetReadCycle(1000);
+            reader.SetPower(30);
+
 
             startInventory();
 
@@ -53,7 +55,7 @@ public class CaenRfidService {
         //source.InventoryAbort();
         reader.InventoryAbort();
         source.InventoryTag();
-    }
+        }
 
     private void retryLater() {
         new Timer().schedule(new TimerTask() {
