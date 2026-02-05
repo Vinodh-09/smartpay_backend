@@ -33,40 +33,20 @@ public class CaenRfidService {
             // Connecting to the reader
             reader.Connect(CAENRFIDPort.CAENRFID_RS232, "COM11");
 
+
             // 🔑 FIX: Wait until reader is fully initialized
             Thread.sleep(1500);
-
             source = reader.GetSources()[0];
             CAENRFIDReaderInfo info = reader.GetReaderInfo();
 
             System.out.println("--- Connection Successful ---");
             System.out.println("Model: " + info.GetModel());
             System.out.println("Firmware: " + reader.GetFirmwareRelease());
-
             // Configuration
             source.SetReadCycle(1000);
 
             System.out.println("Starting continuous read... Press Ctrl+C to stop.");
             System.out.println("-------------------------------------------------");
-
-            List<String> epcTags = new ArrayList<>();
-            // Continuous Inventory Loop
-            while (true) {
-                CAENRFIDTag[] tags = source.InventoryTag();
-
-                if (tags != null && tags.length > 0) {
-                    for (CAENRFIDTag tag : tags) {
-                        // FIX: Convert the byte ID to Hex String for consistency
-                        String hexId = bytesToHex(tag.GetId());
-                        System.out.println("Tag ID (Hex): " + hexId);
-                        epcTags.add(hexId);
-                    }
-                }
-                tagForwarder.forwardTag(epcTags);
-                epcTags.clear();
-                // Small sleep to prevent CPU spiking
-                Thread.sleep(100);
-            }
 
         } catch (CAENRFIDException e) {
             System.err.println("RFID Error: " + e.getMessage());
@@ -74,48 +54,37 @@ public class CaenRfidService {
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             System.err.println("Process interrupted.");
-        } finally {
-            try {
-                if (reader != null) {
-                    reader.Disconnect();
-                    System.out.println("Disconnected from reader.");
+        }
+    }
+
+    public void startInventory() throws CAENRFIDException {
+        new Thread(() -> {
+            List<String> epcTags = new ArrayList<>();
+            try{
+
+                // Continuous Inventory Loop
+                while (true) {
+                    CAENRFIDTag[] tags = source.InventoryTag();
+
+                    if (tags != null && tags.length > 0) {
+                        for (CAENRFIDTag tag : tags) {
+                            // FIX: Convert the byte ID to Hex String for consistency
+                            String hexId = bytesToHex(tag.GetId());
+                            System.out.println("Tag ID (Hex): " + hexId);
+                            epcTags.add(hexId);
+                        }
+                    }
+                    tagForwarder.forwardTag(epcTags);
+                    epcTags.clear();
+                    // Small sleep to prevent CPU spiking
+                    Thread.sleep(100);
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            } catch (CAENRFIDException e) {
+                throw new RuntimeException(e);
             }
-        }
-    }
-
-    private void startInventory() throws CAENRFIDException {
-        //source.InventoryAbort();
-        reader.InventoryAbort();
-        source.InventoryTag();
-    }
-
-    private void retryLater() {
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                connectReader();
-            }
-        }, 5000);
-    }
-
-    public List<String> readTags() {
-        try {
-            if (reader == null) {
-                connectReader();
-                return List.of();
-            }
-            CAENRFIDTag[] tags = source.InventoryTag();
-            for (CAENRFIDTag tag : tags) {
-                scannedTags.put(tag.GetId().toString(), System.currentTimeMillis());
-            }
-            return new ArrayList<>(scannedTags.keySet());
-        } catch (Exception e) {
-            System.err.println("Read failed: " + e.getMessage());
-            return List.of();
-        }
+        }).start();
     }
 
     @PreDestroy
