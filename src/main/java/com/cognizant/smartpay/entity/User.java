@@ -47,8 +47,9 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(name = "login_status",nullable = false)
-    private Character loginStatus ='N';
+    @Column(name="login_status")
+    private String loginStatus;
+
 
     // Transient field for wallet balance (not stored in users table)
     @Transient
