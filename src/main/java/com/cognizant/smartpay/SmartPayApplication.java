@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @version 1.0.0
  */
 @SpringBootApplication
-@EnableScheduling
+//@EnableScheduling
 public class SmartPayApplication {
 
     public static void main(String[] args) {
@@ -27,11 +27,11 @@ public class SmartPayApplication {
         System.out.println("===========================================");
     }
 
-    @Autowired
-    private CaenRfidService caenRfidService;
-
-    @EventListener(ApplicationReadyEvent.class)
-    public void startScan() throws CAENRFIDException {
-        caenRfidService.startInventory(); // Start on app startup
-    }
+//    @Autowired
+//    private CaenRfidService caenRfidService;
+//
+//    @EventListener(ApplicationReadyEvent.class)
+//    public void startScan() throws CAENRFIDException {
+//        caenRfidService.startInventory(); // Start on app startup
+//    }
 }
