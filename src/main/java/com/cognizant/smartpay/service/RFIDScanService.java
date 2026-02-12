@@ -24,30 +24,34 @@ public class RFIDScanService {
         //log.info("Adding item by RFID tag..");
         // Logic to process scanned tags and add products to cart
         // Get currently logged-in user
-        String getUserIdSql = "SELECT user_id FROM users WHERE login_status = ? ";
-        List<Long> userIds = jdbcTemplate.query(getUserIdSql, (rs, rowNum) -> rs.getLong("user_id"), 'Y');
-        Long userId;
-        Long cartId;
-        if(userIds != null && userIds.size() > 0){
-            userId = userIds.get(0);
-            // Get or create cart for user - ensure only one active cart per user
-            String getCartIdSql = "SELECT cart_id FROM cart WHERE user_id = ? AND is_active = 1";
-            List<Long> cartIds = jdbcTemplate.query(getCartIdSql, (rs, rowNum) -> rs.getLong("cart_id"), userId);
+        if (scannedTags.size()>0) {
+            String getUserIdSql = "SELECT user_id FROM users WHERE login_status = ? ";
+            List<Long> userIds = jdbcTemplate.query(getUserIdSql, (rs, rowNum) -> rs.getLong("user_id"), "Y");
+            Long userId;
+            Long cartId;
+            if (userIds != null && userIds.size() > 0) {
+                userId = userIds.get(0);
+                // Get or create cart for user - ensure only one active cart per user
+                String getCartIdSql = "SELECT cart_id FROM cart WHERE user_id = ? AND is_active = 1";
+                List<Long> cartIds = jdbcTemplate.query(getCartIdSql, (rs, rowNum) -> rs.getLong("cart_id"), userId);
 
-            if (cartIds.isEmpty()) {
-                // Create new cart
-                String insertCartSql = "INSERT INTO cart (user_id, is_active, created_at, updated_at) VALUES (?, 1, NOW(), NOW())";
-                jdbcTemplate.update(insertCartSql, userId);
-                cartId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
+                if (cartIds.isEmpty()) {
+                    // Create new cart
+                    String insertCartSql = "INSERT INTO cart (user_id, is_active, created_at, updated_at) VALUES (?, 1, NOW(), NOW())";
+                    jdbcTemplate.update(insertCartSql, userId);
+                    cartId = jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Long.class);
+                } else {
+                    // Use existing cart
+                    cartId = cartIds.get(0);
+                }
+                // Process each scanned tag
+                scannedTagsOneByOne(userId, cartId, scannedTags);
+
             } else {
-                // Use existing cart
-                cartId = cartIds.get(0);
+                throw new IllegalArgumentException("No logged-in user found");
             }
-            // Process each scanned tag
-            scannedTagsOneByOne(userId,cartId,scannedTags);
-
-        } else{
-            throw new IllegalArgumentException("No logged-in user found");
+        }else{
+            System.out.println("There is no tags");
         }
     }
 
