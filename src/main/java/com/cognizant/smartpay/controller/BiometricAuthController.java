@@ -113,6 +113,21 @@ public class BiometricAuthController {
             return ResponseEntity.ok(java.util.Collections.emptyList());
         }
     }
+    /**
+     * Logout user and set status to 'n'
+     * * POST /api/auth/logout/{userId}
+     */
+    @PostMapping("/logout/{userId}")
+    public ResponseEntity<String> logoutUser(@PathVariable Long userId) {
+        log.info("Received logout request for user ID: {}", userId);
+        try {
+            biometricService.logoutUser(userId);
+            return ResponseEntity.ok("Logged out successfully");
+        } catch (Exception e) {
+            log.error("Logout failed for user ID: {}", userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Logout failed");
+        }
+    }
 
     /**
      * Health check endpoint
