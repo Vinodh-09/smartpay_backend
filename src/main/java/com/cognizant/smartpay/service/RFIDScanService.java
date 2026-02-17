@@ -99,7 +99,7 @@ public class RFIDScanService {
                     int newQuantity = (Integer) existingItems.get(0).get("quantity") + 1;
 
                     String updateSql = """
-                UPDATE cart_items 
+                UPDATE cart_items
                 SET quantity = ?, subtotal = ? * ?, updated_at = NOW()
                 WHERE cart_item_id = ?
                 """;

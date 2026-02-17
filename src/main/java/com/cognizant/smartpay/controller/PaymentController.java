@@ -1,4 +1,3 @@
-
 package com.cognizant.smartpay.controller;
 
 import com.cognizant.smartpay.service.PaymentService;
@@ -11,7 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/payment")
-@CrossOrigin(origins = "http://localhost:3001")
+@CrossOrigin(origins = "http://localhost:3000")
 @Slf4j
 @RequiredArgsConstructor
 public class PaymentController {
@@ -22,16 +21,24 @@ public class PaymentController {
     public ResponseEntity<?> processPayment(@RequestBody Map<String, Long> request) {
         Long userId = request.get("userId");
         log.info("Processing payment for user: {}", userId);
+
         try {
             Map<String, Object> result = paymentService.processPayment(userId);
             return ResponseEntity.ok(result);
+
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage(), "status", "failed"));
+            // ✅ ADD THIS LOG (so you can see "Cart is empty" / "Insufficient wallet balance" etc.)
+            log.error("Payment failed for user {}: {}", userId, e.getMessage());
+
+            return ResponseEntity.badRequest().body(
+                    Map.of("status", "failed", "message", e.getMessage())
+            );
+
         } catch (Exception e) {
-            e.printStackTrace(); // This prints the error to your terminal
+            log.error("Unexpected error during payment for user {}: {}", userId, e.getMessage(), e);
             return ResponseEntity.internalServerError().body(Map.of(
-                    "error", e.getMessage(), // This sends the ACTUAL error to your React app
-                    "status", "failed"
+                    "status", "failed",
+                    "message", e.getMessage()
             ));
         }
     }
