@@ -55,6 +55,9 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "login_status")
+    private String loginStatus;
+
     // Transient field for wallet balance (not stored in users table)
     @Transient
     private BigDecimal walletBalance;
@@ -100,10 +103,12 @@ public class User {
     public BigDecimal getWalletBalance() {
         return walletBalance;
     }
-
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+    public void setLoginStatus(String loginStatus){
+        this.loginStatus=loginStatus;
     }
 
 

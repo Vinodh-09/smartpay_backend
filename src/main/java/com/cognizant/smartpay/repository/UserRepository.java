@@ -36,4 +36,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * Check if phone number exists
      */
     boolean existsByPhone(String phone);
+    Optional<User> findByUserId(Long userId);
 }

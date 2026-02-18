@@ -141,6 +141,21 @@ public class BiometricAuthController {
         dto.setBiometricEnabled(user.getBiometricEnabled());
         dto.setEnabled(user.getEnabled());
         dto.setStatus(user.getStatus());
+        System.out.println("-----------------------------------------"+user.getName());
         return dto;
+    }
+
+    @PostMapping("/logout/{userId}")
+    public ResponseEntity<String> logoutUser(@PathVariable Long userId) {
+        log.info("Received logout request for user ID: {}", userId);
+        System.out.println("----------------------------------------------"+userId);
+
+        try {
+            biometricService.logoutUser(userId);
+            return ResponseEntity.ok("Logged out successfully");
+        } catch (Exception e) {
+            log.error("Logout failed for user ID: {}", userId, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Logout failed");
+        }
     }
 }

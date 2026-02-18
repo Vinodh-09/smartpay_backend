@@ -20,6 +20,7 @@ public class UserDTO {
     private String phone;
     private BigDecimal walletBalance;
     private Boolean biometricEnabled;
+    private String loginStatus;
     private Boolean enabled;
     private String status;
 
@@ -53,5 +54,9 @@ public class UserDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setLoginStatus(String loginStatus){
+        this.loginStatus=loginStatus;
     }
 }

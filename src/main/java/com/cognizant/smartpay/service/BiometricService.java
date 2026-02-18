@@ -64,7 +64,7 @@ public class BiometricService {
         // Get wallet balance
         Optional<Wallet> walletOpt = walletRepository.findByUserId(user.getUserId());
         walletOpt.ifPresent(wallet -> user.setWalletBalance(wallet.getBalance()));
-
+        user.setLoginStatus("Y");
         log.info("User authenticated successfully: {}", user.getEmail());
         return user;
     }
@@ -426,5 +426,18 @@ public class BiometricService {
             log.error("Error generating hash", e);
             return null;
         }
+    }
+
+    @Transactional
+    public void logoutUser(Long userId) {
+        log.info("Setting login status to 'n' for user: {}", userId);
+        System.out.println("-----------------------------------------"+userId);
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BiometricNotFoundException("User not found"));
+
+        // Updates the existing status field to 'n'
+        user.setLoginStatus("N");
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 }
