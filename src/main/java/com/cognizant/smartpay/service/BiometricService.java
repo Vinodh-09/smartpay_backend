@@ -430,13 +430,14 @@ public class BiometricService {
 
     @Transactional
     public void logoutUser(Long userId) {
-        log.info("Setting login status to 'n' for user: {}", userId);
-        System.out.println("-----------------------------------------"+userId);
+        log.info("Setting login status to 'N' for user: {}", userId);
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new BiometricNotFoundException("User not found"));
-
-        // Updates the existing status field to 'n'
+        // Logout status
         user.setLoginStatus("N");
+        // Ensure user remains active
+        user.setEnabled(true);      // active user = Y
+        user.setStatus("ACTIVE");   // safety (optional but recommended)
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
     }
